@@ -42,14 +42,14 @@ int main(int argc, char ** argv) {
        /* Leader */
        char buffer[1000];
        MPI_Recv(buffer, 1000, MPI_CHAR, comm_sz-2, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+       sprintf(buffer, "%s Hello world from %d\n", buffer, rank);
        printf("%s\n", buffer);
    } else {
        /* Followers */
        char buffer[1000];
        MPI_Recv(buffer, 1000, MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-
-       strcpy(buffer, buffer + "Hello world from " + rank + "\n");
+       sprintf(buffer, "%s Hello world from %d\n", buffer, rank);
        MPI_Send(buffer, 1000, MPI_CHAR, rank + 1, 0, MPI_COMM_WORLD);
    }
 
