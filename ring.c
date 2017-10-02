@@ -26,7 +26,6 @@ int main(int argc, char ** argv) {
     int name_sz;
     MPI_Get_processor_name(hostname, &name_sz);
 
-    printf("Hello from %s, rank %d (of %d).\n", hostname, rank, comm_sz);
 
     /* We need to modify this file so that we send point-to-point messages
      * between processes. We'll use MPI_Send and MPI_Recv... */
@@ -38,18 +37,23 @@ int main(int argc, char ** argv) {
      * MPI_Send(buffer, 1000, MPI_CHAR, 0, 0, MPI_COMM_WORLD);
      */
 
-    if (rank == comm_sz-1) {
+     if(rank == 0){
+         char buffer[1000];
+         sprintf(buffer, "Hello world from %d\n", rank);
+         MPI_Send(buffer, 1000, MPI_CHAR, rank + 1, 0, MPI_COMM_WORLD);
+     }
+     else if (rank == comm_sz-1) {
        /* Leader */
        char buffer[1000];
        MPI_Recv(buffer, 1000, MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-       sprintf(buffer, "%s Hello world from %d\n", buffer, rank);
+       sprintf(buffer, "%sHello world from %d\n", buffer, rank);
        printf("%s\n", buffer);
    } else {
        /* Followers */
        char buffer[1000];
        MPI_Recv(buffer, 1000, MPI_CHAR, rank - 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-       sprintf(buffer, "%s Hello world from %d\n", buffer, rank);
+       sprintf(buffer, "%sHello world from %d\n", buffer, rank);
        MPI_Send(buffer, 1000, MPI_CHAR, rank + 1, 0, MPI_COMM_WORLD);
    }
 
